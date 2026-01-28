@@ -3,21 +3,37 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const connectDB = require('../backend/src/config/database');
-
-// 라우트 import
-const userRoutes = require('../backend/src/routes/userRoutes');
-const attendanceRoutes = require('../backend/src/routes/attendanceRoutes');
-const approvalLineRoutes = require('../backend/src/routes/approvalLineRoutes');
+const mongoose = require('mongoose');
 
 // 앱 초기화
 const app = express();
 
 // 데이터베이스 연결 (한 번만)
-if (!global.dbConnected) {
-  connectDB();
-  global.dbConnected = true;
-}
+let dbConnected = false;
+
+const connectDB = async () => {
+  if (dbConnected) return;
+  
+  try {
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/church-admin';
+    
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+
+    console.log('MongoDB 데이터베이스에 연결되었습니다.');
+    dbConnected = true;
+  } catch (error) {
+    console.error('MongoDB 연결 실패:', error);
+    throw error;
+  }
+};
+
+// 라우트 import
+const userRoutes = require('../backend/src/routes/userRoutes');
+const attendanceRoutes = require('../backend/src/routes/attendanceRoutes');
+const approvalLineRoutes = require('../backend/src/routes/approvalLineRoutes');
 
 // 미들웨어
 app.use(cors({
@@ -33,6 +49,20 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
+
+// DB 연결 미들웨어
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('DB 연결 실패:', error);
+    res.status(500).json({
+      success: false,
+      message: '데이터베이스 연결 실패'
+    });
+  }
+});
 
 // 로깅 미들웨어
 app.use((req, res, next) => {
