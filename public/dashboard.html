@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주님의 교회 스마트 행정 앱 - API 대시보드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .status {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+
+        .status.error {
+            background: #FFEBEE;
+            border-left-color: #F44336;
+        }
+
+        .status-text {
+            color: #2E7D32;
+            font-weight: 500;
+        }
+
+        .status.error .status-text {
+            color: #C62828;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .endpoint {
+            background: #F5F5F5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .endpoint-info {
+            flex: 1;
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            margin-right: 10px;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .method-post {
+            background: #2196F3;
+        }
+
+        .method-get {
+            background: #4CAF50;
+        }
+
+        .method-put {
+            background: #FF9800;
+        }
+
+        .method-delete {
+            background: #F44336;
+        }
+
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .endpoint-desc {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .test-button:hover {
+            background: #764ba2;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-button:hover {
+            color: #333;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .button-submit {
+            background: #667eea;
+            color: white;
+        }
+
+        .button-submit:hover {
+            background: #764ba2;
+        }
+
+        .button-cancel {
+            background: #eee;
+            color: #333;
+        }
+
+        .button-cancel:hover {
+            background: #ddd;
+        }
+
+        .response-box {
+            background: #F5F5F5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .response-box pre {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .info-box {
+            background: #E3F2FD;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #1565C0;
+        }
+
+        .success {
+            color: #4CAF50;
+        }
+
+        .error {
+            color: #F44336;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⛪ 주님의 교회 스마트 행정 앱</h1>
+            <p>API 대시보드 및 테스트 도구</p>
+        </div>
+
+        <div class="status" id="statusBox">
+            <div class="status-text">✓ API 서버가 정상 작동 중입니다.</div>
+        </div>
+
+        <!-- 인증 섹션 -->
+        <div class="section">
+            <div class="section-title">🔐 인증 (Authentication)</div>
+
+            <div class="endpoint">
+                <div class="endpoint-info">
+                    <span class="endpoint-method method-post">POST</span>
+                    <span class="endpoint-path">/auth/login</span>
+                    <div class="endpoint-desc">사용자 로그인</div>
+                </div>
+                <button class="test-button" onclick="openTestModal('login')">테스트</button>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-info">
+                    <span class="endpoint-method method-post">POST</span>
+                    <span class="endpoint-path">/auth/register</span>
+                    <div class="endpoint-desc">회원가입 (관리자만)</div>
+                </div>
+                <button class="test-button" onclick="openTestModal('register')">테스트</button>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-info">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-path">/auth</span>
+                    <div class="endpoint-desc">모든 사용자 조회 (관리자만)</div>
+                </div>
+                <button class="test-button" onclick="openTestModal('users')">테스트</button>
+            </div>
+        </div>
+
+        <!-- 출석 관리 섹션 -->
+        <div class="section">
+            <div class="section-title">📍 출석 관리 (Attendance)</div>
+
+            <div class="endpoint">
+                <div class="endpoint-info">
+                    <span class="endpoint-method method-post">POST</span>
+                    <span class="endpoint-path">/attendance/geofencing</span>
+                    <div class="endpoint-desc">지오펜싱 확인</div>
+                </div>
+                <button class="test-button" onclick="openTestModal('geofencing')">테스트</button>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-info">
+                    <span class="endpoint-method method-post">POST</span>
+                    <span class="endpoint-path">/attendance/check-in</span>
+                    <div class="endpoint-desc">출석 체크인</div>
+                </div>
+                <button class="test-button" onclick="openTestModal('checkin')">테스트</button>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-info">
+                    <span class="endpoint-method method-post">POST</span>
+                    <span class="endpoint-path">/attendance/check-out</span>
+                    <div class="endpoint-desc">퇴청</div>
+                </div>
+                <button class="test-button" onclick="openTestModal('checkout')">테스트</button>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-info">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-path">/attendance/today</span>
+                    <div class="endpoint-desc">오늘 출석자 명단</div>
+                </div>
+                <button class="test-button" onclick="openTestModal('today')">테스트</button>
+            </div>
+        </div>
+
+        <!-- 결재선 섹션 -->
+        <div class="section">
+            <div class="section-title">📋 결재선 (Approval Line)</div>
+
+            <div class="endpoint">
+                <div class="endpoint-info">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-path">/approval-lines</span>
+                    <div class="endpoint-desc">결재선 조회</div>
+                </div>
+                <button class="test-button" onclick="openTestModal('approval-lines')">테스트</button>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-info">
+                    <span class="endpoint-method method-post">POST</span>
+                    <span class="endpoint-path">/approval-lines</span>
+                    <div class="endpoint-desc">결재선 생성 (관리자만)</div>
+                </div>
+                <button class="test-button" onclick="openTestModal('create-approval')">테스트</button>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>📝 주의:</strong> POST 요청에는 JWT 토큰이 필요합니다. 먼저 /auth/login으로 로그인 후 토큰을 받으세요.
+        </div>
+
+        <div class="footer">
+            <p>배포 버전 | 2026년 1월</p>
+            <p>자세한 API 문서는 <a href="./docs/API.md" target="_blank">API.md</a>를 참고하세요.</p>
+        </div>
+    </div>
+
+    <!-- 테스트 모달 -->
+    <div class="modal" id="testModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">API 테스트</h2>
+                <button class="close-button" onclick="closeTestModal()">&times;</button>
+            </div>
+
+            <form id="testForm" onsubmit="sendRequest(event)">
+                <div id="formContent"></div>
+
+                <div class="button-group">
+                    <button type="submit" class="button-submit">요청 전송</button>
+                    <button type="button" class="button-cancel" onclick="closeTestModal()">취소</button>
+                </div>
+            </form>
+
+            <div id="responseContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+        let currentTest = null;
+        let token = null;
+
+        const testConfigs = {
+            login: {
+                title: '로그인 테스트',
+                method: 'POST',
+                endpoint: '/auth/login',
+                requireAuth: false,
+                fields: [
+                    { name: 'username', label: '사용자명', type: 'text', value: 'admin' },
+                    { name: 'password', label: '비밀번호', type: 'password', value: 'admin123' }
+                ]
+            },
+            register: {
+                title: '회원가입 테스트',
+                method: 'POST',
+                endpoint: '/auth/register',
+                requireAuth: true,
+                fields: [
+                    { name: 'username', label: '사용자명', type: 'text', value: 'newuser' },
+                    { name: 'password', label: '비밀번호', type: 'password', value: 'password123' },
+                    { name: 'name', label: '이름', type: 'text', value: '신규사용자' },
+                    { name: 'position', label: '직분', type: 'text', value: '교인' }
+                ]
+            },
+            users: {
+                title: '사용자 목록 조회',
+                method: 'GET',
+                endpoint: '/auth',
+                requireAuth: true,
+                fields: []
+            },
+            geofencing: {
+                title: '지오펜싱 확인',
+                method: 'POST',
+                endpoint: '/attendance/geofencing',
+                requireAuth: false,
+                fields: [
+                    { name: 'latitude', label: '위도', type: 'text', value: '37.6379499' },
+                    { name: 'longitude', label: '경도', type: 'text', value: '126.8747216' }
+                ]
+            },
+            checkin: {
+                title: '출석 체크인',
+                method: 'POST',
+                endpoint: '/attendance/check-in',
+                requireAuth: true,
+                fields: [
+                    { name: 'latitude', label: '위도', type: 'text', value: '37.6379499' },
+                    { name: 'longitude', label: '경도', type: 'text', value: '126.8747216' }
+                ]
+            },
+            checkout: {
+                title: '퇴청',
+                method: 'POST',
+                endpoint: '/attendance/check-out',
+                requireAuth: true,
+                fields: []
+            },
+            today: {
+                title: '오늘 출석자 명단',
+                method: 'GET',
+                endpoint: '/attendance/today',
+                requireAuth: true,
+                fields: []
+            },
+            'approval-lines': {
+                title: '결재선 조회',
+                method: 'GET',
+                endpoint: '/approval-lines',
+                requireAuth: true,
+                fields: []
+            },
+            'create-approval': {
+                title: '결재선 생성',
+                method: 'POST',
+                endpoint: '/approval-lines',
+                requireAuth: true,
+                fields: [
+                    { name: 'name', label: '결재선명', type: 'text', value: '기본 결재선' },
+                    { name: 'description', label: '설명', type: 'text', value: '기본 지출 결재선' },
+                    { name: 'approvers', label: 'JSON (approvers)', type: 'textarea', value: '[]' }
+                ]
+            }
+        };
+
+        function openTestModal(testKey) {
+            currentTest = testKey;
+            const config = testConfigs[testKey];
+
+            document.getElementById('modalTitle').textContent = config.title;
+            
+            let formHTML = '';
+            
+            if (config.requireAuth) {
+                formHTML += `
+                    <div class="form-group">
+                        <label>JWT 토큰</label>
+                        <input type="password" id="authToken" placeholder="로그인 후 토큰 입력" value="${token || ''}">
+                    </div>
+                `;
+            }
+
+            config.fields.forEach(field => {
+                if (field.type === 'textarea') {
+                    formHTML += `
+                        <div class="form-group">
+                            <label>${field.label}</label>
+                            <textarea name="${field.name}">${field.value}</textarea>
+                        </div>
+                    `;
+                } else {
+                    formHTML += `
+                        <div class="form-group">
+                            <label>${field.label}</label>
+                            <input type="${field.type}" name="${field.name}" value="${field.value}">
+                        </div>
+                    `;
+                }
+            });
+
+            document.getElementById('formContent').innerHTML = formHTML;
+            document.getElementById('responseContainer').innerHTML = '';
+            document.getElementById('testModal').classList.add('active');
+        }
+
+        function closeTestModal() {
+            document.getElementById('testModal').classList.remove('active');
+            currentTest = null;
+        }
+
+        async function sendRequest(event) {
+            event.preventDefault();
+
+            const config = testConfigs[currentTest];
+            const url = API_BASE_URL + config.endpoint;
+
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            if (config.requireAuth) {
+                const authToken = document.getElementById('authToken')?.value || token;
+                if (!authToken) {
+                    alert('토큰이 필요합니다. 먼저 로그인하세요.');
+                    return;
+                }
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            let body = null;
+            if (config.method !== 'GET') {
+                const formData = new FormData(document.getElementById('testForm'));
+                body = {};
+                formData.forEach((value, key) => {
+                    if (key === 'approvers') {
+                        body[key] = JSON.parse(value);
+                    } else {
+                        body[key] = value;
+                    }
+                });
+            }
+
+            try {
+                const options = {
+                    method: config.method,
+                    headers: headers
+                };
+
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(url, options);
+                const data = await response.json();
+
+                // 로그인 시 토큰 저장
+                if (currentTest === 'login' && data.token) {
+                    token = data.token;
+                }
+
+                displayResponse(response.status, data);
+            } catch (error) {
+                displayResponse(0, { error: error.message });
+            }
+        }
+
+        function displayResponse(status, data) {
+            const responseHTML = `
+                <div class="response-box">
+                    <strong>상태 코드: ${status}</strong>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+            document.getElementById('responseContainer').innerHTML = responseHTML;
+        }
+
+        // 페이지 로드 시 API 상태 확인
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch(API_BASE_URL + '/health');
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('statusBox').innerHTML = 
+                        '<div class="status-text">✓ API 서버가 정상 작동 중입니다.</div>';
+                }
+            } catch (error) {
+                document.getElementById('statusBox').classList.add('error');
+                document.getElementById('statusBox').innerHTML = 
+                    `<div class="status-text">✗ API 서버 연결 실패</div>`;
+            }
+        });
+    </script>
+</body>
+</html>

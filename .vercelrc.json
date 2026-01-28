@@ -1,0 +1,26 @@
+{
+  "buildCommand": "npm run build",
+  "env": {
+    "MONGODB_URI": {
+      "description": "MongoDB 데이터베이스 연결 문자열"
+    },
+    "JWT_SECRET": {
+      "description": "JWT 시크릿 키 (임의의 강력한 문자열)"
+    },
+    "GOOGLE_VISION_API_KEY": {
+      "description": "Google Cloud Vision API 키 (선택사항)"
+    },
+    "NODE_ENV": {
+      "description": "환경 설정",
+      "default": "production"
+    },
+    "FRONTEND_URL": {
+      "description": "프론트엔드 URL (CORS 설정용)"
+    }
+  },
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  }
+}
