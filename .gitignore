@@ -91,3 +91,5 @@ Desktop.ini
 
 # Keep these
 !.gitkeep
+.vercel
+.env*.local
