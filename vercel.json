@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "cd backend && npm install && npm run build",
-  "outputDirectory": "backend",
+  "buildCommand": "cd backend && npm install",
   "public": false,
   "framework": "express",
   "functions": {
     "api/**/*.js": {
+      "runtime": "nodejs20.x",
       "memory": 1024,
       "maxDuration": 30
     }
@@ -16,7 +16,6 @@
       "destination": "/api/index.js"
     }
   ],
-
   "headers": [
     {
       "source": "/api/(.*)",
