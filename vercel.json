@@ -3,11 +3,6 @@
   "buildCommand": "cd backend && npm install",
   "public": false,
   "framework": "express",
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
