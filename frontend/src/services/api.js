@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://church-two-pi.vercel.app';
 
 // axios 인스턴스 생성
 const apiClient = axios.create({
@@ -91,6 +91,38 @@ export const approvalLineAPI = {
   
   deleteApprovalLine: (id) =>
     apiClient.delete(`/approval-lines/${id}`)
+};
+
+// 지출 API
+export const expenditureAPI = {
+  createExpenditure: (data) =>
+    apiClient.post('/expenditure', data),
+  
+  getAllExpenditures: () =>
+    apiClient.get('/expenditure'),
+  
+  getExpenditureById: (id) =>
+    apiClient.get(`/expenditure/${id}`),
+  
+  updateExpenditure: (id, data) =>
+    apiClient.put(`/expenditure/${id}`, data),
+  
+  deleteExpenditure: (id) =>
+    apiClient.delete(`/expenditure/${id}`),
+  
+  approveExpenditure: (id, comment) =>
+    apiClient.post(`/expenditure/${id}/approve`, { comment }),
+  
+  rejectExpenditure: (id, reason) =>
+    apiClient.post(`/expenditure/${id}/reject`, { reason })
+};
+
+// 일반 API 호출 함수
+export const api = {
+  get: (url, config) => apiClient.get(url, config),
+  post: (url, data, config) => apiClient.post(url, data, config),
+  put: (url, data, config) => apiClient.put(url, data, config),
+  delete: (url, config) => apiClient.delete(url, config)
 };
 
 export default apiClient;

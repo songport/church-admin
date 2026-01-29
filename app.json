@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "afdd94c9-3d25-4736-b570-0417f462b4dd"
+      }
+    },
+    "android": {
+      "package": "com.wonhosong.churchadmin"
+    }
+  }
+}

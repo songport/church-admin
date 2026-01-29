@@ -1,122 +1,114 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
-  TextInput,
-  TouchableOpacity,
+  ScrollView,
   StyleSheet,
   SafeAreaView,
-  Alert,
-  CheckBox,
-  ActivityIndicator
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
-import { AuthContext } from '../context/AuthContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../context/AuthContext';
+import { TextInputField } from '../components/Input';
+import { PrimaryButton } from '../components/Button';
 
-export const LoginScreen = ({ navigation }) => {
-  const { login, error } = useContext(AuthContext);
+export const LoginScreen = () => {
+  const { login, loading, error } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [keepLoggedIn, setKeepLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  useEffect(() => {
+    if (error) {
+      setFormError(error);
+    }
+  }, [error]);
 
   const handleLogin = async () => {
-    if (!username || !password) {
-      Alert.alert('입력 오류', '사용자명과 비밀번호를 입력하세요.');
+    if (!username.trim()) {
+      setFormError('사용자명을 입력하세요.');
       return;
     }
 
-    setLoading(true);
-    const result = await login(username, password);
-    setLoading(false);
+    if (!password.trim()) {
+      setFormError('비밀번호를 입력하세요.');
+      return;
+    }
 
-    if (result.success) {
-      // 로그인 유지 설정
-      if (keepLoggedIn) {
-        await AsyncStorage.setItem('keepLoggedIn', 'true');
-      }
-      Alert.alert('로그인 성공', '환영합니다!');
-      navigation.replace('Home');
-    } else {
-      Alert.alert('로그인 실패', result.error || error);
+    setFormError('');
+    const result = await login(username, password);
+
+    if (!result.success) {
+      setFormError(result.error);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        {/* 앱 제목 */}
-        <View style={styles.header}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* 로고 및 제목 */}
+        <View style={styles.logoContainer}>
+          <Text style={styles.logo}>✝️</Text>
           <Text style={styles.title}>주님의 교회</Text>
-          <Text style={styles.subtitle}>스마트 행정 앱</Text>
+          <Text style={styles.subtitle}>스마트 행정 시스템</Text>
         </View>
 
-        {/* 입력 필드 */}
-        <View style={styles.formContainer}>
-          {/* 사용자명 */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>사용자명</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="사용자명을 입력하세요"
-              value={username}
-              onChangeText={setUsername}
-              editable={!loading}
-              placeholderTextColor="#999"
-            />
-          </View>
-
-          {/* 비밀번호 */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>비밀번호</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="비밀번호를 입력하세요"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              editable={!loading}
-              placeholderTextColor="#999"
-            />
-          </View>
-
-          {/* 로그인 유지 체크박스 */}
-          <View style={styles.checkboxContainer}>
-            <CheckBox
-              value={keepLoggedIn}
-              onValueChange={setKeepLoggedIn}
-              disabled={loading}
-            />
-            <Text style={styles.checkboxLabel}>로그인 유지</Text>
-          </View>
-
-          {/* 에러 메시지 */}
-          {error && (
+        {/* 폼 */}
+        <View style={styles.form}>
+          {formError && (
             <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
+              <Text style={styles.errorMessage}>{formError}</Text>
             </View>
           )}
 
-          {/* 로그인 버튼 */}
+          <TextInputField
+            label="사용자명"
+            placeholder="사용자명 입력"
+            value={username}
+            onChangeText={(text) => {
+              setUsername(text);
+              setFormError('');
+            }}
+          />
+
+          <TextInputField
+            label="비밀번호"
+            placeholder="비밀번호 입력"
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              setFormError('');
+            }}
+            secureTextEntry={true}
+          />
+
+          {/* 로그인 유지 */}
           <TouchableOpacity
-            style={[styles.loginButton, loading && styles.disabledButton]}
-            onPress={handleLogin}
-            disabled={loading}
+            style={styles.rememberMeContainer}
+            onPress={() => setRememberMe(!rememberMe)}
           >
-            {loading ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <Text style={styles.loginButtonText}>로그인</Text>
-            )}
+            <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+              {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+            </View>
+            <Text style={styles.rememberMeText}>로그인 유지</Text>
           </TouchableOpacity>
+
+          {/* 로그인 버튼 */}
+          <PrimaryButton
+            label="로그인"
+            onPress={handleLogin}
+            loading={loading}
+            disabled={loading}
+          />
         </View>
 
-        {/* 하단 정보 */}
+        {/* 버전 정보 */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>교회의 행정 업무를</Text>
-          <Text style={styles.footerText}>더 효율적으로 관리하세요.</Text>
+          <Text style={styles.versionText}>버전 1.0.0</Text>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -124,102 +116,89 @@ export const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5'
+    backgroundColor: '#F3F4F6'
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    justifyContent: 'space-between',
-    paddingVertical: 40
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 32
   },
-  header: {
+  logoContainer: {
     alignItems: 'center',
-    marginBottom: 50
+    marginBottom: 48
+  },
+  logo: {
+    fontSize: 64,
+    marginBottom: 16
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#2563EB',
     marginBottom: 8
   },
   subtitle: {
-    fontSize: 18,
-    color: '#666',
-    fontWeight: '500'
-  },
-  formContainer: {
-    flex: 1,
-    justifyContent: 'center'
-  },
-  inputGroup: {
-    marginBottom: 20
-  },
-  label: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8
+    color: '#6B7280'
   },
-  input: {
-    borderWidth: 2,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    backgroundColor: '#fff'
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  form: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
     marginBottom: 24,
-    marginTop: 8
-  },
-  checkboxLabel: {
-    fontSize: 16,
-    color: '#333',
-    marginLeft: 8,
-    fontWeight: '500'
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3
   },
   errorContainer: {
-    backgroundColor: '#ffebee',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    marginBottom: 20,
+    backgroundColor: '#FEE2E2',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#c62828'
+    borderLeftColor: '#EF4444'
   },
-  errorText: {
-    color: '#c62828',
+  errorMessage: {
+    color: '#EF4444',
     fontSize: 14,
     fontWeight: '500'
   },
-  loginButton: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 16,
-    borderRadius: 8,
+  rememberMeContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
+    marginBottom: 24
   },
-  disabledButton: {
-    opacity: 0.6
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    borderRadius: 4,
+    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  loginButtonText: {
-    color: '#fff',
-    fontSize: 18,
+  checkboxChecked: {
+    backgroundColor: '#2563EB',
+    borderColor: '#2563EB'
+  },
+  checkmark: {
+    color: '#FFFFFF',
+    fontSize: 14,
     fontWeight: 'bold'
+  },
+  rememberMeText: {
+    fontSize: 14,
+    color: '#1F2937'
   },
   footer: {
     alignItems: 'center'
   },
-  footerText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4
+  versionText: {
+    fontSize: 12,
+    color: '#9CA3AF'
   }
 });

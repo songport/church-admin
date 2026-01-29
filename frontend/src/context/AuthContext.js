@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authAPI } from '../services/api';
 
@@ -83,7 +83,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     register,
-    isSignedIn: !!token
+    isSignedIn: !!token,
+    isAdmin: user?.permissions?.isAdmin || false
   };
 
   return (
@@ -91,4 +92,13 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+// useAuth 훅
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth는 AuthProvider 내에서 사용해야 합니다.');
+  }
+  return context;
 };
