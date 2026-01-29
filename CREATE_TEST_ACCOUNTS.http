@@ -1,0 +1,91 @@
+# 배포 후 테스트 계정 생성 요청
+
+## 관리자 계정 생성
+
+```http
+POST https://church-admin-api.onrender.com/api/auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "admin@church.com",
+  "password": "admin123",
+  "name": "교회 관리자",
+  "role": "admin"
+}
+```
+
+## 일반 사용자 계정 생성
+
+```http
+POST https://church-admin-api.onrender.com/api/auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "user@church.com",
+  "password": "user123",
+  "name": "일반 사용자",
+  "role": "user"
+}
+```
+
+## curl을 사용한 계정 생성
+
+### 관리자 계정
+
+```bash
+curl -X POST https://church-admin-api.onrender.com/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@church.com",
+    "password": "admin123",
+    "name": "교회 관리자",
+    "role": "admin"
+  }'
+```
+
+### 일반 사용자 계정
+
+```bash
+curl -X POST https://church-admin-api.onrender.com/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@church.com",
+    "password": "user123",
+    "name": "일반 사용자",
+    "role": "user"
+  }'
+```
+
+## PowerShell을 사용한 계정 생성
+
+### 관리자 계정
+
+```powershell
+$adminBody = @{
+    email = "admin@church.com"
+    password = "admin123"
+    name = "교회 관리자"
+    role = "admin"
+} | ConvertTo-Json
+
+Invoke-WebRequest -Uri "https://church-admin-api.onrender.com/api/auth/register" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body $adminBody
+```
+
+### 일반 사용자 계정
+
+```powershell
+$userBody = @{
+    email = "user@church.com"
+    password = "user123"
+    name = "일반 사용자"
+    role = "user"
+} | ConvertTo-Json
+
+Invoke-WebRequest -Uri "https://church-admin-api.onrender.com/api/auth/register" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body $userBody
+```
