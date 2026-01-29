@@ -7,7 +7,10 @@
     "start": "node api/local.js",
     "dev": "nodemon api/local.js",
     "build": "echo 'Vercel deployment build'",
-    "test": "jest"
+    "test": "jest",
+    "init-db": "node src/scripts/initDb.js",
+    "init-db-dev": "nodemon src/scripts/initDb.js",
+    "test-db": "node src/scripts/testDbConnection.js"
   },
   "keywords": [],
   "author": "",
