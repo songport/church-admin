@@ -8,7 +8,7 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 router.post(
   '/login',
   [
-    body('username').notEmpty().withMessage('사용자명을 입력하세요.'),
+    body('email').isEmail().withMessage('유효한 이메일을 입력하세요.'),
     body('password').notEmpty().withMessage('비밀번호를 입력하세요.')
   ],
   userController.login

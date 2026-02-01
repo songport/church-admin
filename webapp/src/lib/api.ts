@@ -37,8 +37,8 @@ apiClient.interceptors.response.use(
 
 // 인증 API
 export const authAPI = {
-  login: (username: string, password: string) =>
-    apiClient.post('/auth/login', { username, password }),
+  login: (email: string, password: string) =>
+    apiClient.post('/auth/login', { email, password }),
   registerUser: (data: any) =>
     apiClient.post('/auth/register', data),
   getAllUsers: () =>

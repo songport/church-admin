@@ -12,7 +12,7 @@ import { Card } from '@/components/Card';
 export default function LoginPage() {
   const router = useRouter();
   const { login, loading, error, isSignedIn } = useAuthStore();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
@@ -25,7 +25,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(username, password);
+      await login(email, password);
       if (rememberMe) {
         localStorage.setItem('rememberMe', 'true');
       }
@@ -51,11 +51,11 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="사용자명"
-            type="text"
-            placeholder="사용자명 입력"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            label="이메일"
+            type="email"
+            placeholder="이메일 입력"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
             required
           />
@@ -96,8 +96,8 @@ export default function LoginPage() {
 
         <div className="mt-6 pt-6 border-t border-gray-200 text-center text-sm text-gray-600">
           <p>테스트 계정:</p>
-          <p>사용자명: testuser</p>
-          <p>비밀번호: password123</p>
+          <p>관리자: admin@church.com / admin123</p>
+          <p>사용자: user@church.com / user123</p>
         </div>
       </Card>
     </div>

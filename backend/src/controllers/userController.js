@@ -14,14 +14,14 @@ const login = async (req, res) => {
       });
     }
 
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    // 사용자 조회
-    const user = await User.findOne({ username });
+    // 사용자 조회 (email로 검색)
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(401).json({ 
         success: false,
-        message: '사용자명 또는 비밀번호가 잘못되었습니다.' 
+        message: '이메일 또는 비밀번호가 잘못되었습니다.' 
       });
     }
 
@@ -30,7 +30,7 @@ const login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ 
         success: false,
-        message: '사용자명 또는 비밀번호가 잘못되었습니다.' 
+        message: '이메일 또는 비밀번호가 잘못되었습니다.' 
       });
     }
 

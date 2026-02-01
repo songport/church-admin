@@ -33,10 +33,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
   isSignedIn: false,
   isAdmin: false,
 
-  login: async (username: string, password: string) => {
+  login: async (email: string, password: string) => {
     set({ loading: true, error: null });
     try {
-      const response = await authAPI.login(username, password);
+      const response = await authAPI.login(email, password);
       const { token, user } = response.data;
 
       Cookies.set('authToken', token, { expires: 7 });
